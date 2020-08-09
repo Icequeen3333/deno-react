@@ -59,6 +59,8 @@ interface IMessage {
 export const NewTask = () => {
 
   const [ws, setWs] = React.useState<any>(null);
+
+  // const ws: any = React.useRef<any| null>(null);
 	const [completedCount, setCompletedCount] = React.useState<number>(0);
   const [log, setLog] = React.useState<string | undefined>(undefined);
 
@@ -126,15 +128,27 @@ export const NewTask = () => {
 		}
 	};
 
+
+//   React.useEffect(() => {
+//     ws.current = new WebSocket("ws://localhost:6789");
+//     ws.current.onopen = () => console.log("ws opened");
+//     ws.current.onclose = () => console.log("ws closed");
+
+//     console.log("WS:", ws.current )
+
+//     return () => {
+//         ws.current.close();
+//     };
+// }, []);
   React.useEffect(() => {
-		ws?.close();
+		// ws?.close();
 
 		try {
 			// ${window.location.host}
 
 			const wsl: WebSocket = new WebSocket(`ws://localhost:6789`);
 
-			// console.log("WS:", wsl)
+			console.log("WS:", wsl)
 
 			if (wsl) {
 				wsl.addEventListener("message", onReceiveMessage);
@@ -148,7 +162,7 @@ export const NewTask = () => {
 		catch(err) {
 			console.error(err.message);
 		}
-	}, [ws]);
+	}, );
 
   return (
     <div>

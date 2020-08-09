@@ -2,6 +2,7 @@ import React from 'react'
 import { NewTask } from './NewTask'
 import NavBar from './NavBar'
 import Login from './Login'
+import AppWs from './AppWs'
 
 const App = () => {
 
@@ -10,7 +11,7 @@ const App = () => {
     const logout = async () => {
 
         try {
-            const response = await fetch(':8000/auth/logout', {
+            await fetch('http://localhost:8000/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -27,12 +28,13 @@ const App = () => {
 
     const readToken = async () => {
         try {
-            const response = await fetch('/auth/token');
+            const response = await fetch('http://localhost:8000/auth/token');
 
-            // console.log("Token res:", response)
+            console.log("Token res:", response)
 
             if (response.ok) {
                 const body = await response.json()
+                console.log("bd:",body)
                 if (body?.token) {
                     setToken(body?.token)
                 } else if (body?.error) {

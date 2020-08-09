@@ -22,7 +22,7 @@ const Login = ({ setToken }: LoginProps ) => {
             const body = await response.json()
             
             // console.log("Res:", body)
-            // console.log("Token:", body?.data?.accessToken)
+            console.log("Token:", body?.data?.accessToken)
 
             if (body?.data?.accessToken) {
                 setToken(body?.data?.accessToken)
