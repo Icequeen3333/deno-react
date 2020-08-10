@@ -10,9 +10,9 @@ export const login = async(ctx: RouterContext) => {
             ctx.throw(Status.BadRequest, "Bad Request");
         }
 
-        const body: Body = await ctx.request.body();
+        const body: Body = ctx.request.body();
         
-        console.log(body)
+        // console.log(body)
 
         let value: LoginBody | null = null;
 
@@ -22,7 +22,7 @@ export const login = async(ctx: RouterContext) => {
             ctx.throw(Status.UnprocessableEntity, "Wrong body type");
         }
 
-        const user = await value?.user;
+        const user = value?.user;
 
         if (!value || !user) {
             ctx.throw(Status.UnprocessableEntity, "Wrong user name");
@@ -36,7 +36,11 @@ export const login = async(ctx: RouterContext) => {
 
             const token = makeJwt({ header, payload, key });
 
-            ctx.cookies.set("server-token", token, { httpOnly: true, maxAge: 36000 });
+            const rex= ctx.cookies.set("server-token", token, { httpOnly: true, maxAge: 360000 });
+
+            console.log("Heders:", ctx.response.headers)
+
+            console.log("Cook:", ctx.cookies.get("server-token"))
 
             ctx.response.status = Status.OK;
             ctx.response.type = "json";
@@ -81,6 +85,9 @@ export const token = async (ctx: RouterContext) => {
     try {
         ctx.response.status = Status.OK;
         ctx.response.type = "json";
+
+        console.log("Cookies:", ctx?.cookies)
+
         if (ctx?.cookies?.get("server-token")) {            
             ctx.response.body = { 'token': ctx.cookies.get("server-token") };            
         } else {

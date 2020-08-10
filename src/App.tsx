@@ -2,7 +2,7 @@ import React from 'react'
 import { NewTask } from './NewTask'
 import NavBar from './NavBar'
 import Login from './Login'
-import AppWs from './AppWs'
+// import AppWs from './AppWs'
 
 const App = () => {
 
@@ -34,12 +34,12 @@ const App = () => {
 
             if (response.ok) {
                 const body = await response.json()
-                console.log("bd:",body)
+                console.log("bd:", body)
                 if (body?.token) {
                     setToken(body?.token)
                 } else if (body?.error) {
                     setToken(null)
-                }                
+                }
             }
         } catch (e) {
             console.log("Read token error:", e);
@@ -50,18 +50,27 @@ const App = () => {
         readToken();
     }, []);
 
+    // { token ?
+    //     <div>
+    //         <NavBar logout={logout} />
+    //         <br/>
+    //         <NewTask/> 
+    //         <br/>
+    //     </div> : <Login setToken={setToken} />
+    // }
+
     return (
         <React.Fragment>
-            { token ?
-                <div>
-                    <NavBar logout={logout} />
-                    <br/>
-                    <NewTask/> 
-                    <br/>
-                </div> : <Login setToken={setToken} />
-            }
+
+            <div>
+                <NavBar logout={logout} />
+                <br />
+                <NewTask />
+                <br />
+            </div>
+
         </React.Fragment>
-   )
+    )
 }
 
 export default App

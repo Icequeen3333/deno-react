@@ -1,13 +1,58 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Avatar, Button, Container, Box, CssBaseline, TextField, Typography, Link } from '@material-ui/core';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { useCookies } from 'react-cookie';
 
 type  LoginProps = { setToken: (username: string | null) => void, }
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        '@global': {
+            body: {
+                backgroundColor: theme.palette.common.white,
+            },
+        },
+        paper: {
+            marginTop: theme.spacing(8),
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+        },
+        avatar: {
+            margin: theme.spacing(1),
+            backgroundColor: theme.palette.secondary.main,
+        },
+        form: {
+            width: '100%', // Fix IE 11 issue.
+            marginTop: theme.spacing(1),
+        },
+        submit: {
+            margin: theme.spacing(3, 0, 2),
+        },
+    }));
+
+
+    function Copyright() {
+        return (
+            <Typography variant="body2" color="textSecondary" align="center">
+                {'Copyright © '}
+                <Link color="inherit" href="https://www.google.com/">Google</Link>{' '}
+                {new Date().getFullYear()}
+                {'.'}
+            </Typography>
+        );
+    }
+
+ 
 const Login = ({ setToken }: LoginProps ) => {
 
     const userRef = React.useRef<HTMLInputElement | null>(null);
     const passRef = React.useRef<HTMLInputElement | null>(null);
     const [error, setError] = React.useState<string | null>(null)
+    const classes = useStyles();
+    const [, setCookie] = useCookies(['etl-token']);
 
     const getUser = async () => {
         const response = await fetch('http://localhost:8000/auth/login', {
