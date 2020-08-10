@@ -101,7 +101,7 @@ export const NewTask = () => {
     // console.log('Submitted: ' + selectedCar + ":" + selectedColor + ":" + selectedModel);
 
     setLog(undefined);
-    ws?.send(JSON.stringify({ action: "doTask", car: selectedCar, model: selectedModel, color: selectedColor }));
+    ws?.current.send(JSON.stringify({ action: "doTask", car: selectedCar, model: selectedModel, color: selectedColor }));
   }
  
   const handleLogClick = ( event: React.MouseEvent<HTMLButtonElement, MouseEvent> ) => {
@@ -128,23 +128,10 @@ export const NewTask = () => {
 		}
 	};
 
-
-//   React.useEffect(() => {
-//     ws.current = new WebSocket("ws://localhost:6789");
-//     ws.current.onopen = () => console.log("ws opened");
-//     ws.current.onclose = () => console.log("ws closed");
-
-//     console.log("WS:", ws.current )
-
-//     return () => {
-//         ws.current.close();
-//     };
-// }, []);
   React.useEffect(() => {
 		ws?.current?.close();
 
 		try {
-			// ${window.location.host}
 
 			ws.current = new WebSocket(`ws://localhost:6789`);
 
@@ -152,7 +139,6 @@ export const NewTask = () => {
 
 			if (ws.current) {
 				ws.current.addEventListener("message", onReceiveMessage);
-				// setWs(wsl)
 			}
 
 			return () => {
