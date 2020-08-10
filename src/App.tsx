@@ -1,75 +1,44 @@
 import React from 'react'
+import { CookiesProvider, useCookies } from "react-cookie";
+import { Helmet } from 'react-helmet';
+
+import { StatusContext } from './StatusContext';
 import { NewTask } from './NewTask'
 import NavBar from './NavBar'
 import Login from './Login'
-// import AppWs from './AppWs'
 
 const App = () => {
 
-    const [token, setToken] = React.useState<string | null>(null)
+    const [user, setUser] = React.useState<string | null>(null)
+    const [running, setRunning] = React.useState<boolean>(false)
+    const statusValue = React.useMemo(() => ({ running, setRunning }), [running, setRunning]);
+    const [cookies, , removeCookie] = useCookies(['token']);
 
-    const logout = async () => {
-
-        try {
-            await fetch('http://localhost:8000/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify({ token })
-            });
-            // console.log("Logout res:", response)
-
-            setToken(null)
-        } catch (e) {
-            console.log("Read token error:", e);
-        }
+    const logout = () => {
+        removeCookie("token");
+        setUser(null)
     }
 
-    const readToken = async () => {
-        try {
-            const response = await fetch('http://localhost:8000/auth/token');
-
-            console.log("Token res:", response)
-
-            if (response.ok) {
-                const body = await response.json()
-                console.log("bd:", body)
-                if (body?.token) {
-                    setToken(body?.token)
-                } else if (body?.error) {
-                    setToken(null)
-                }
-            }
-        } catch (e) {
-            console.log("Read token error:", e);
-        }
-    };
-
-    React.useEffect(() => {
-        readToken();
-    }, []);
-
-    // { token ?
-    //     <div>
-    //         <NavBar logout={logout} />
-    //         <br/>
-    //         <NewTask/> 
-    //         <br/>
-    //     </div> : <Login setToken={setToken} />
-    // }
-
     return (
-        <React.Fragment>
+        <CookiesProvider>
+            <React.Fragment>
+                { user || (cookies && cookies.token) ?
+                    <div>
+                        <Helmet>
+                            <title>{running ? "In progress" : "Runner"}</title>
+                            <link rel="shortcut icon" href={running ? "/favicon-busy-2.ico" : "/favicon.ico"}></link>
+                        </Helmet>
 
-            <div>
-                <NavBar logout={logout} />
-                <br />
-                <NewTask />
-                <br />
-            </div>
-
-        </React.Fragment>
+                        <StatusContext.Provider value={statusValue}>
+                            <NavBar logout={logout} />
+                            <br/>
+                            <NewTask/> 
+                            <br/>
+                        </StatusContext.Provider>
+                    </div> : <Login setUser={setUser} />
+                }
+            </React.Fragment>
+        </CookiesProvider>
     )
 }
 

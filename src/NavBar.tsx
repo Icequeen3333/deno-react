@@ -25,10 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const NavBar = ({ logout }: { logout: () => void }) => {
 
-
     const classes = useStyles();
-
-    const host = window.location.hostname === 'localhost' ? window.location.hostname + ':8000' : window.location.hostname
 
     return (
         <Paper elevation={2} className={classes.root}>

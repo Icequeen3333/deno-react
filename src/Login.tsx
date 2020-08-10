@@ -5,7 +5,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie';
 
-type  LoginProps = { setToken: (username: string | null) => void, }
+type  LoginProps = { setUser: (username: string | null) => void, }
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -33,24 +33,21 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }));
 
-
-    function Copyright() {
-        return (
-            <Typography variant="body2" color="textSecondary" align="center">
-                {'Copyright © '}
-                <Link color="inherit" href="https://www.google.com/">Google</Link>{' '}
-                {new Date().getFullYear()}
-                {'.'}
-            </Typography>
-        );
-    }
-
+function Copyright() {
+    return (
+        <Typography variant="body2" color="textSecondary" align="center">
+            {'Copyright © '}
+            <Link color="inherit" href="https://www.google.com/">Google</Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+        </Typography>
+    );
+}
  
-const Login = ({ setToken }: LoginProps ) => {
+const Login = ({ setUser }: LoginProps ) => {
 
-    const userRef = React.useRef<HTMLInputElement | null>(null);
-    const passRef = React.useRef<HTMLInputElement | null>(null);
-    const [error, setError] = React.useState<string | null>(null)
+    const userRef = React.useRef<string>('');
+    const passRef = React.useRef<string>('');
     const classes = useStyles();
     const [, setCookie] = useCookies(['etl-token']);
 
@@ -58,7 +55,7 @@ const Login = ({ setToken }: LoginProps ) => {
         const response = await fetch('http://localhost:8000/auth/login', {
             method: 'POST',
             headers: new Headers({'content-type': 'application/json'}),
-            body: JSON.stringify({ user: userRef?.current?.value, pass: passRef?.current?.value })
+            body: JSON.stringify({ user: userRef?.current, pass: passRef?.current })
         })
 
         // console.log("Res OK:", response.ok)
@@ -67,10 +64,13 @@ const Login = ({ setToken }: LoginProps ) => {
             const body = await response.json()
             
             // console.log("Res:", body)
-            console.log("Token:", body?.data?.accessToken)
+            // console.log("Token:", body?.data?.accessToken)
 
             if (body?.data?.accessToken) {
-                setToken(body?.data?.accessToken)
+                setCookie("token", body?.data?.accessToken, { maxAge: 3600, sameSite: 'strict' });
+                setUser(userRef?.current)
+            } else {
+                alert('Error: token not returned')
             }
         }       
     }
@@ -78,18 +78,17 @@ const Login = ({ setToken }: LoginProps ) => {
     const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!userRef?.current?.value) {
+        if (!userRef?.current) {
             console.log('Missing user')
-            setError('Missing user')
-            setToken(null)
+            alert('Missing user')
+            setUser(null)
             return
         }
 
-        if (!passRef?.current?.value) {
+        if (!passRef?.current) {
             console.log('Missing password')
-            setError('Missing password')
-            // alert('Error: Missing password')
-            setToken(null)
+            alert('Error: Missing password')
+            setUser(null)
             return
         }
 
@@ -97,23 +96,30 @@ const Login = ({ setToken }: LoginProps ) => {
     }
 
     return (
-        <div className="wrapper fadeInDown">
-            <div id="formContent">
-                <form id="loginForm" noValidate onSubmit={handleSignIn}>
-                    <h3>Sign In</h3>
-
-                    <input type="text" id="user" className="fadeIn second" name="user" placeholder="user name" ref={userRef} />
-                    <input type="text" id="password" className="fadeIn third" name="pass" placeholder="password" ref={passRef}/>
-                    <input type="submit" className="fadeIn fourth" value="Log In" />
-                    { error && <b style={{ background: 'red', color: 'white' }}>{error}</b> }
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">ETL Sign in</Typography>
+                <form id="loginForm" className={classes.form} noValidate onSubmit={handleSignIn}>
+                    <TextField id="userInput" variant="outlined" margin="normal" required fullWidth
+                        label="User name" name="user" autoComplete="user" autoFocus onChange={e => userRef.current = e.target.value} />
+                    <TextField id="passwordInput" variant="outlined" margin="normal" required fullWidth name="password"
+                        label="Password" type="password" autoComplete="current-password" onChange={e => passRef.current = e.target.value} />
+                    <Button id="signButton" type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>Sign in</Button>
                 </form>
             </div>
-        </div>
+            <Box mt={8}>
+                <Copyright />
+            </Box>
+        </Container>
     );
 }
 
 Login.propTypes = {
-    setToken: PropTypes.func.isRequired
+    setUser: PropTypes.func.isRequired
 }
 
 export default Login;
